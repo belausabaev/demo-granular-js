@@ -9,6 +9,50 @@ import Grains from './Grains';
 import DragAndDrop from './DragAndDrop';
 import AutoPlay from './AutoPlay';
 
+import { Pane } from 'tweakpane';
+
+const pane = new Pane();
+pane.title = 'Granular Synthesizer';
+pane.expanded = true;
+
+let att = 0.1;
+let dec = 0.1;
+let dens = 0.1;
+let spr = 0.1;
+let pit = 0.1;
+
+//grnaular js params
+const PARAMS = {
+  attack: 0.1,
+  decay: 0.1,
+  density: 0.7,
+  spread: 0.5,
+  pitch: 1
+};
+
+pane.addSeparator();
+const grain = pane.addFolder({
+  title: 'Granular Parameters',
+  expanded: true
+});
+pane.addSeparator();
+const envelope = grain.addFolder({
+  title: 'Envelope',
+  expanded: true
+});
+const attInput = envelope.addInput(PARAMS, 'attack', { min: 0.0, max: 1.0, step: 0.1 });
+const decInput = envelope.addInput(PARAMS, 'decay', { min: 0.0, max: 1.0, step: 0.1 });
+grain.addSeparator();
+const granularparams = grain.addFolder({
+  title: 'Granulation Parameters',
+  expanded: true
+});
+const densityInput = granularparams.addInput(PARAMS, 'density', { min: 0.1, max: 1.0, step: 0.1 });
+const spreadInput = granularparams.addInput(PARAMS, 'spread', { min: 0.1, max: 1, step: 0.1 });
+//const pitchInput = granularparams.addInput(PARAMS, 'pitch', { min: 0.1, max: 1, step: 0.1 });
+
+
+
 
 async function getData(url) {
   return new Promise((resolve) => {
@@ -18,7 +62,7 @@ async function getData(url) {
 
     request.responseType = 'arraybuffer';
 
-    request.onload = function() {
+    request.onload = function () {
       const audioData = request.response;
 
       resolve(audioData);
@@ -46,18 +90,22 @@ const PRESETS = [
   {
     name: 4,
     url: './example4.mp3'
+  },
+  {
+    name: 5,
+    url: './example.wav'
   }
 ];
 
 const pillPlay = document.getElementById('pill-play'),
-      pillLoading = document.getElementById('pill-loading'),
-      pillTitle = document.getElementById('pill-title'),
-      canvases = document.getElementById('canvases'),
-      presets = document.getElementById('presets');
+  pillLoading = document.getElementById('pill-loading'),
+  pillTitle = document.getElementById('pill-title'),
+  canvases = document.getElementById('canvases'),
+  presets = document.getElementById('presets');
 
 let autoPlay,
-    dragAndDrop,
-    granular;
+  dragAndDrop,
+  granular;
 
 const AUDIO_BUFFER_CACHE = {};
 
@@ -87,7 +135,7 @@ async function loadUserData(data) {
 
 async function loadPreset({ name, url }) {
   if (process.ENV === 'development') {
-    console.log(`load preset ${ name }`);
+    console.log(`load preset ${name}`);
   }
 
   autoPlay.stop();
@@ -100,10 +148,10 @@ async function loadPreset({ name, url }) {
 
   let data;
 
-  if (AUDIO_BUFFER_CACHE[ name ]) {
+  if (AUDIO_BUFFER_CACHE[name]) {
 
     // AudioBuffer
-    data = AUDIO_BUFFER_CACHE[ name ];
+    data = AUDIO_BUFFER_CACHE[name];
   } else {
 
     // ArrayBuffer
@@ -112,7 +160,7 @@ async function loadPreset({ name, url }) {
 
   const audioBuffer = await granular.setBuffer(data);
 
-  AUDIO_BUFFER_CACHE[ name ] = audioBuffer;
+  AUDIO_BUFFER_CACHE[name] = audioBuffer;
 
   pillLoading.classList.add('hidden');
   pillPlay.classList.remove('inactive');
@@ -162,6 +210,46 @@ async function init() {
     pitch: 1
   });
 
+  attInput.on('change', function (ev) {
+    att = parseFloat(ev.value.toFixed(1));
+    console.log(att);
+    granular.set({
+      envelope: { attack: att }
+    });
+
+  });
+  decInput.on('change', function (ev) {
+    dec = parseFloat(ev.value.toFixed(1));
+    console.log(dec);
+    granular.set({
+      envelope: { decay: dec }
+    });
+  });
+  densityInput.on('change', function (ev) {
+    dens = parseFloat(ev.value.toFixed(1));
+    console.log(dens);
+    granular.set({
+      density: dens
+    });
+  });
+  spreadInput.on('change', function (ev) {
+    spr = parseFloat(ev.value.toFixed(1));
+    console.log(spr);
+    granular.set({
+      spread: spr
+    });
+  });
+  /*
+  pitchInput.on('change', function (ev) {
+    pit = parseFloat(ev.value.toFixed(1));
+    console.log(spr);
+    granular.set({
+      pitch: pit
+    });
+  });
+*/
+
+  /*
   const delay = new p5.Delay();
 
   delay.process(granular, 0.5, 0.5, 3000); // source, delayTime, feedback, filter frequency
@@ -177,7 +265,7 @@ async function init() {
   const compressor = new p5.Compressor();
 
   compressor.process(reverb, 0.005, 6, 10, -24, 0.05); // [attack], [knee], [ratio], [threshold], [release]
-
+*/
   const waveform = new Waveform();
 
   new Grains(granular);
@@ -229,7 +317,7 @@ async function init() {
 
   const buttons = Array.from(document.querySelectorAll('#presets .preset'));
 
-  buttons.concat([ pillPlay, pillTitle ]).forEach(element => {
+  buttons.concat([pillPlay, pillTitle]).forEach(element => {
     [
       'click',
       'mousedown',
