@@ -1,0 +1,34 @@
+{
+  "name": "granular-js-demo",
+  "version": "0.1.0",
+  "description": "A granular-js example",
+  "main": "index.js",
+  "scripts": {
+    "all": "npm run assets && npm run build && npm run deploy",
+    "start": "parcel src/index.html --no-cache --no-hmr --open",
+    "build": "parcel build src/index.html --no-cache --public-url ./",
+    "assets": "cp -r assets/* dist",
+    "deploy": "gh-pages -d dist"
+  },
+  "browserslist": [
+    "last 1 Chrome version",
+    "Firefox ESR",
+    "last 1 safari version",
+    "last 1 opera version",
+    "last 1 edge version"
+  ],
+  "author": "Philipp Fromme",
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "^4.17.11",
+    "p5": "^0.7.2",
+    "parcel-bundler": "^1.12.5",
+    "simplex-noise": "^2.4.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.1.5",
+    "@babel/preset-env": "^7.1.5",
+    "cssnano": "^4.1.7",
+    "gh-pages": "^2.0.1"
+  }
+}
