@@ -7,3 +7,6 @@ A demo of [granular-js](https://github.com/philippfromme/granular-js), a library
 ## License
 
 MIT
+
+
+Technical documentation
